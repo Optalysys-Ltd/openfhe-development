@@ -1,3 +1,5 @@
+**Important note**: This is an *experimental* fork of the OpenFHE library, which I will use to run experiments. See the original repository https://github.com/openfheorg/openfhe-development for the official version.
+
 OpenFHE Lattice Cryptography Library
 =====================================
 
