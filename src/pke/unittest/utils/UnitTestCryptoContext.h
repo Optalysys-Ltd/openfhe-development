@@ -35,6 +35,7 @@
 
 #include "UnitTestCCParams.h"
 #include "cryptocontext.h"
+#include "schemebase/base-scheme.h"
 
 using Element = lbcrypto::DCRTPoly;
 

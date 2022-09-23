@@ -33,8 +33,5 @@
 
 // the code below is from publickey-impl.cpp
 namespace lbcrypto {
-    //template class PublicKeyImpl<Poly>;
-    //template class PublicKeyImpl<NativePoly>;
-    template class PublicKeyImpl<DCRTPoly>;
+template class PublicKeyImpl<DCRTPoly>;
 }  // namespace lbcrypto
-

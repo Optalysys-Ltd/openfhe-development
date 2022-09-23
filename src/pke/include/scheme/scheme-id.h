@@ -41,12 +41,11 @@
 namespace lbcrypto {
 
 //====================================================================================================================
-// TODO: should it be a SCHEME class??? (dsuponit)
 enum SCHEME {
-  CKKSRNS_SCHEME,
-  BFVRNS_SCHEME,
-  BGVRNS_SCHEME,
-  INVALID_SCHEME
+    CKKSRNS_SCHEME = 0,
+    BFVRNS_SCHEME,
+    BGVRNS_SCHEME,
+    INVALID_SCHEME,
 };
 //====================================================================================================================
 std::ostream& operator<<(std::ostream& os, SCHEME schemeId);

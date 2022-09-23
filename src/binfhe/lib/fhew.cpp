@@ -53,11 +53,11 @@ namespace lbcrypto {
 // skNTT corresponds to the secret key z
 std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptAP(
     const std::shared_ptr<RingGSWCryptoParams> params, const NativePoly& skNTT, const LWEPlaintext& m) const {
-    NativeInteger Q                             = params->GetLWEParams()->GetQ();
-    int64_t q                                   = params->GetLWEParams()->Getq().ConvertToInt();
-    uint32_t N                                  = params->GetLWEParams()->GetN();
-    uint32_t digitsG                            = params->GetDigitsG();
-    uint32_t digitsG2                           = params->GetDigitsG2();
+    NativeInteger Q                                  = params->GetLWEParams()->GetQ();
+    int64_t q                                        = params->GetLWEParams()->Getq().ConvertToInt();
+    uint32_t N                                       = params->GetLWEParams()->GetN();
+    uint32_t digitsG                                 = params->GetDigitsG();
+    uint32_t digitsG2                                = params->GetDigitsG2();
     const std::shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
 
     auto result = std::make_shared<RingGSWCiphertext>(digitsG2, 2);
@@ -109,13 +109,12 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptAP(
     return result;
 }
 
-// Encryption for the GINX variant, as described in "Bootstrapping in FHEW-like
-// Cryptosystems"
+// Encryption for the GINX variant, as described in https://eprint.iacr.org/2020/08
 std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptGINX(
     const std::shared_ptr<RingGSWCryptoParams> params, const NativePoly& skNTT, const LWEPlaintext& m) const {
-    NativeInteger Q                             = params->GetLWEParams()->GetQ();
-    uint32_t digitsG                            = params->GetDigitsG();
-    uint32_t digitsG2                           = params->GetDigitsG2();
+    NativeInteger Q                                  = params->GetLWEParams()->GetQ();
+    uint32_t digitsG                                 = params->GetDigitsG();
+    uint32_t digitsG2                                = params->GetDigitsG2();
     const std::shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
 
     auto result = std::make_shared<RingGSWCiphertext>(digitsG2, 2);
@@ -204,7 +203,7 @@ RingGSWEvalKey RingGSWAccumulatorScheme::KeyGenAP(const std::shared_ptr<RingGSWC
 }
 
 // Bootstrapping keys generation for the GINX variant, as described in
-// "Bootstrapping in FHEW-like Cryptosystems"
+// https://eprint.iacr.org/2020/08
 RingGSWEvalKey RingGSWAccumulatorScheme::KeyGenGINX(const std::shared_ptr<RingGSWCryptoParams> params,
                                                     const std::shared_ptr<LWEEncryptionScheme> lwescheme,
                                                     const std::shared_ptr<const LWEPrivateKeyImpl> LWEsk) const {
@@ -314,11 +313,11 @@ void RingGSWAccumulatorScheme::SignedDigitDecompose(const std::shared_ptr<RingGS
     }
 }
 
-// AP Accumulation as described in "Bootstrapping in FHEW-like Cryptosystems"
+// AP Accumulation as described in https://eprint.iacr.org/2020/08
 void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoParams> params,
                                           const RingGSWCiphertext& input,
                                           std::shared_ptr<RingGSWCiphertext> acc) const {
-    uint32_t digitsG2                           = params->GetDigitsG2();
+    uint32_t digitsG2                                = params->GetDigitsG2();
     const std::shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
 
     std::vector<NativePoly> ct = acc->GetElements()[0];
@@ -352,7 +351,7 @@ void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoPar
     }
 }
 
-// GINX Accumulation as described in "Bootstrapping in FHEW-like Cryptosystems"
+// GINX Accumulation as described in https://eprint.iacr.org/2020/08
 // Added ternary MUX introduced in paper https://eprint.iacr.org/2022/074.pdf section 5
 // We optimize the algorithm by multiplying the monomial after the external product
 // This reduces the number of polynomial multiplications which further reduces the runtime
@@ -360,9 +359,9 @@ void RingGSWAccumulatorScheme::AddToACCGINX(const std::shared_ptr<RingGSWCryptoP
                                             const RingGSWCiphertext& input1, const RingGSWCiphertext& input2,
                                             const NativeInteger& a, std::shared_ptr<RingGSWCiphertext> acc) const {
     // cycltomic order
-    uint32_t m                                  = 2 * params->GetLWEParams()->GetN();
-    uint32_t digitsG2                           = params->GetDigitsG2();
-    int64_t q                                   = params->GetLWEParams()->Getq().ConvertToInt();
+    uint32_t m                                       = 2 * params->GetLWEParams()->GetN();
+    uint32_t digitsG2                                = params->GetDigitsG2();
+    int64_t q                                        = params->GetLWEParams()->Getq().ConvertToInt();
     const std::shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
 
     std::vector<NativePoly> ct = acc->GetElements()[0];
@@ -430,12 +429,12 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::BootstrapCore(
     }
 
     const std::shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
-    NativeInteger q                             = params->GetLWEParams()->Getq();
-    NativeInteger Q                             = params->GetLWEParams()->GetQ();
-    uint32_t N                                  = params->GetLWEParams()->GetN();
-    uint32_t baseR                              = params->GetBaseR();
-    uint32_t n                                  = params->GetLWEParams()->Getn();
-    std::vector<NativeInteger> digitsR          = params->GetDigitsR();
+    NativeInteger q                                  = params->GetLWEParams()->Getq();
+    NativeInteger Q                                  = params->GetLWEParams()->GetQ();
+    uint32_t N                                       = params->GetLWEParams()->GetN();
+    uint32_t baseR                                   = params->GetBaseR();
+    uint32_t n                                       = params->GetLWEParams()->Getn();
+    std::vector<NativeInteger> digitsR               = params->GetDigitsR();
 
     // Specifies the range [q1,q2) that will be used for mapping
     uint32_t qHalf   = q.ConvertToInt() >> 1;
@@ -492,8 +491,7 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::BootstrapCore(
     return acc;
 }
 
-// Full evaluation as described in "Bootstrapping in FHEW-like
-// Cryptosystems"
+// Full evaluation as described in https://eprint.iacr.org/2020/08
 std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(
     const std::shared_ptr<RingGSWCryptoParams> params, const BINGATE gate, const RingGSWEvalKey& EK,
     const std::shared_ptr<const LWECiphertextImpl> ct1, const std::shared_ptr<const LWECiphertextImpl> ct2,
@@ -573,8 +571,7 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(
     }
 }
 
-// Full evaluation as described in "Bootstrapping in FHEW-like
-// Cryptosystems"
+// Full evaluation as described in https://eprint.iacr.org/2020/08
 std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::Bootstrap(
     const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWEvalKey& EK,
     const std::shared_ptr<const LWECiphertextImpl> ct1, const std::shared_ptr<LWEEncryptionScheme> LWEscheme) const {
@@ -650,12 +647,12 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::BootstrapCore(
     }
 
     const std::shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
-    NativeInteger q                             = params->GetLWEParams()->Getq();
-    NativeInteger Q                             = params->GetLWEParams()->GetQ();
-    uint32_t N                                  = params->GetLWEParams()->GetN();
-    uint32_t baseR                              = params->GetBaseR();
-    uint32_t n                                  = params->GetLWEParams()->Getn();
-    std::vector<NativeInteger> digitsR          = params->GetDigitsR();
+    NativeInteger q                                  = params->GetLWEParams()->Getq();
+    NativeInteger Q                                  = params->GetLWEParams()->GetQ();
+    uint32_t N                                       = params->GetLWEParams()->GetN();
+    uint32_t baseR                                   = params->GetBaseR();
+    uint32_t n                                       = params->GetLWEParams()->Getn();
+    std::vector<NativeInteger> digitsR               = params->GetDigitsR();
 
     NativeVector m(params->GetLWEParams()->GetN(), params->GetLWEParams()->GetQ());
     // For specific function evaluation instead of general bootstrapping
@@ -698,8 +695,7 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::BootstrapCore(
     return acc;
 }
 
-// Full evaluation as described in "Bootstrapping in FHEW-like
-// Cryptosystems"
+// Full evaluation as described in https://eprint.iacr.org/2020/08
 template <typename Func>
 std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::Bootstrap(
     const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWEvalKey& EK,

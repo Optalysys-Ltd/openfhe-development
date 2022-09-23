@@ -30,37 +30,26 @@
 //==================================================================================
 
 /*
-Description:
-
-This code implements RNS variants of the Cheon-Kim-Kim-Song scheme.
-
-The CKKS scheme is introduced in the following paper:
-- Jung Hee Cheon, Andrey Kim, Miran Kim, and Yongsoo Song. Homomorphic
-encryption for arithmetic of approximate numbers. Cryptology ePrint Archive,
-Report 2016/421, 2016. https://eprint.iacr.org/2016/421.
-
- Our implementation builds from the designs here:
- - Marcelo Blatt, Alexander Gusev, Yuriy Polyakov, Kurt Rohloff, and Vinod
-Vaikuntanathan. Optimized homomorphic encryption solution for secure genomewide
-association studies. Cryptology ePrint Archive, Report 2019/223, 2019.
-https://eprint.iacr.org/2019/223.
- - Andrey Kim, Antonis Papadimitriou, and Yuriy Polyakov. Approximate
-homomorphic encryption with reduced approximation error. Cryptology ePrint
-Archive, Report 2020/1118, 2020. https://eprint.iacr.org/2020/
-1118.
+BGV implementation. See https://eprint.iacr.org/2021/204 for details.
  */
 
 #define PROFILE
 
-#include "cryptocontext.h"
-#include "keyswitch/keyswitch-hybrid.h"
 #include "scheme/bgvrns/bgvrns-scheme.h"
+
+#include "scheme/bgvrns/bgvrns-advancedshe.h"
+#include "scheme/bgvrns/bgvrns-leveledshe.h"
+#include "scheme/bgvrns/bgvrns-multiparty.h"
+#include "scheme/bgvrns/bgvrns-fhe.h"
+#include "scheme/bgvrns/bgvrns-pke.h"
+#include "scheme/bgvrns/bgvrns-pre.h"
+
 #include <iosfwd>
 
 namespace lbcrypto {
 
-    void SchemeBGVRNS::Enable(PKESchemeFeature feature) {
-        switch (feature) {
+void SchemeBGVRNS::Enable(PKESchemeFeature feature) {
+    switch (feature) {
         case PKE:
             if (m_PKE == nullptr)
                 m_PKE = std::make_shared<PKEBGVRNS>();
@@ -85,11 +74,15 @@ namespace lbcrypto {
                 m_AdvancedSHE = std::make_shared<AdvancedSHEBGVRNS>();
             break;
         case FHE:
+            if (m_FHE == nullptr)
+                m_FHE = std::make_shared<FHEBGVRNS>();
+            break;
         default:
             std::stringstream ss;
             ss << feature;
-            OPENFHE_THROW(not_implemented_error, std::string("This feature [") + ss.str() + "] is not supported for BGVRNS scheme");
-        }
+            OPENFHE_THROW(not_implemented_error,
+                          std::string("This feature [") + ss.str() + "] is not supported for BGVRNS scheme");
     }
-
 }
+
+}  // namespace lbcrypto

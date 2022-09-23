@@ -30,6 +30,7 @@
 //==================================================================================
 #include "cryptocontext.h"
 #include "cryptocontextfactory.h"
+#include "schemebase/base-scheme.h"
 
 namespace lbcrypto {
 
@@ -38,41 +39,44 @@ std::vector<CryptoContext<Element>> CryptoContextFactory<Element>::AllContexts;
 
 template <typename Element>
 void CryptoContextFactory<Element>::ReleaseAllContexts() {
-  AllContexts.clear();
+    AllContexts.clear();
 }
 
 template <typename Element>
 int CryptoContextFactory<Element>::GetContextCount() {
-  return AllContexts.size();
+    return AllContexts.size();
 }
 
 template <typename Element>
-CryptoContext<Element> CryptoContextFactory<Element>::GetContext(
-    std::shared_ptr<CryptoParametersBase<Element>> params,
-    std::shared_ptr<SchemeBase<Element>> scheme,
-    const std::string& schemeId) {
-  for (CryptoContext<Element> cc : CryptoContextFactory<Element>::AllContexts) {
-    if (*cc->GetScheme().get() == *scheme.get() &&
-        *cc->GetCryptoParameters().get() == *params.get()) {
-      return cc;
+CryptoContext<Element> CryptoContextFactory<Element>::GetContext(std::shared_ptr<CryptoParametersBase<Element>> params,
+                                                                 std::shared_ptr<SchemeBase<Element>> scheme,
+                                                                 const std::string& schemeId) {
+    for (CryptoContext<Element> cc : CryptoContextFactory<Element>::AllContexts) {
+        if (*cc->GetScheme().get() == *scheme.get() && *cc->GetCryptoParameters().get() == *params.get()) {
+            return cc;
+        }
     }
-  }
 
-  CryptoContext<Element> cc(
-      std::make_shared<CryptoContextImpl<Element>>(params, scheme, schemeId));
-  AllContexts.push_back(cc);
+    CryptoContext<Element> cc(std::make_shared<CryptoContextImpl<Element>>(params, scheme, schemeId));
+    AllContexts.push_back(cc);
 
-  if (cc->GetEncodingParams()->GetPlaintextRootOfUnity() != 0) {
-    PackedEncoding::SetParams(cc->GetCyclotomicOrder(),
-                              cc->GetEncodingParams());
-  }
+    if (cc->GetEncodingParams()->GetPlaintextRootOfUnity() != 0) {
+        PackedEncoding::SetParams(cc->GetCyclotomicOrder(), cc->GetEncodingParams());
+    }
 
-  return cc;
+    return cc;
+}
+
+template <typename Element>
+CryptoContext<Element> CryptoContextFactory<Element>::GetFullContextByDeserializedContext(
+    const CryptoContext<Element> context) {
+    return CryptoContextFactory<Element>::GetContext(context->GetCryptoParameters(), context->GetScheme(),
+                                                     context->getSchemeId());
 }
 
 template <typename T>
 const std::vector<CryptoContext<T>>& CryptoContextFactory<T>::GetAllContexts() {
-  return AllContexts;
+    return AllContexts;
 }
 
 }  // namespace lbcrypto
@@ -80,9 +84,6 @@ const std::vector<CryptoContext<T>>& CryptoContextFactory<T>::GetAllContexts() {
 // the code below is from pke/lib/cryptocontextfactory-impl.cpp
 namespace lbcrypto {
 
-    //template class CryptoContextFactory<Poly>;
-    //template class CryptoContextFactory<NativePoly>;
-    template class CryptoContextFactory<DCRTPoly>;
+template class CryptoContextFactory<DCRTPoly>;
 
 }
-

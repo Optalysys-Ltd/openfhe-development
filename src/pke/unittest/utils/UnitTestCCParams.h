@@ -47,23 +47,23 @@ struct UnitTestCCParams {
     // all double values are just data holders. Having them we can use parameters' default values
     double   ringDimension; // CKKSRNS, BFVRNS, BGVRNS
     double   multiplicativeDepth; // CKKSRNS, BGVRNS
-    double   scalingFactorBits; // CKKSRNS, BFVRNS, BGVRNS
-    double   relinWindow; // CKKSRNS, BFVRNS, BGVRNS
+    double   scalingModSize; // CKKSRNS, BFVRNS, BGVRNS
+    double   digitSize; // CKKSRNS, BFVRNS, BGVRNS
     double   batchSize; // CKKSRNS, BFVRNS, BGVRNS
-    double   mode; // CKKSRNS, BFVRNS, BGVRNS
-    double   depth; // CKKSRNS, 
-    double   maxDepth; // CKKSRNS, BFVRNS, BGVRNS
+    double   secretKeyDist; // CKKSRNS, BFVRNS, BGVRNS
+    double   maxRelinSkDeg; // CKKSRNS, BFVRNS, BGVRNS
     double   firstModSize; // BGVRNS
     double   securityLevel; // BFVRNS, BGVRNS
     double   ksTech; // CKKSRNS, BGVRNS
-    double   rsTech; // CKKSRNS, BGVRNS
+    double   scalTech; // CKKSRNS, BGVRNS
     double   numLargeDigits; // CKKSRNS, BGVRNS
     double   plaintextModulus; // BFVRNS, BGVRNS
     double   standardDeviation; // BFVRNS, BGVRNS
     double   evalAddCount; // BFVRNS, 
-    double   evalMultCount; // BFVRNS, 
     double   keySwitchCount; // BFVRNS, 
     double   multiplicationTechnique; // BFVRNS, 
+    double   encryptionTechnique; // BFVRNS,
+    double PREMode; // BGVRNS, BFVRNS, CKKSRNS
 
     std::string toString() const;
 };

@@ -30,13 +30,15 @@
 //==================================================================================
 
 /*
- * Abstract interface class for RNS LBC SHE algorithms
+ * Abstract interface class for the RNS versions of key switching algorithms
  */
 
 #ifndef LBCRYPTO_CRYPTO_KEYSWITCH_RNS_H
 #define LBCRYPTO_CRYPTO_KEYSWITCH_RNS_H
 
 #include "keyswitch/keyswitch-base.h"
+
+#include <string>
 
 /**
  * @namespace lbcrypto
@@ -49,24 +51,26 @@ namespace lbcrypto {
  * @tparam Element a ring element.
  */
 class KeySwitchRNS : public KeySwitchBase<DCRTPoly> {
- public:
-  virtual ~KeySwitchRNS() {}
+public:
+    virtual ~KeySwitchRNS() {}
 
-  /////////////////////////////////////////
-  // SERIALIZATION
-  /////////////////////////////////////////
+    /////////////////////////////////////////
+    // SERIALIZATION
+    /////////////////////////////////////////
 
-  template <class Archive>
-  void save(Archive &ar) const {
-    ar(cereal::base_class<KeySwitchBase<DCRTPoly>>(this));
-  }
+    template <class Archive>
+    void save(Archive& ar) const {
+        ar(cereal::base_class<KeySwitchBase<DCRTPoly>>(this));
+    }
 
-  template <class Archive>
-  void load(Archive &ar) {
-    ar(cereal::base_class<KeySwitchBase<DCRTPoly>>(this));
-  }
+    template <class Archive>
+    void load(Archive& ar) {
+        ar(cereal::base_class<KeySwitchBase<DCRTPoly>>(this));
+    }
 
-  virtual std::string SerializedObjectName() const { return "KeySwitchRNS"; }
+    virtual std::string SerializedObjectName() const {
+        return "KeySwitchRNS";
+    }
 };
 
 }  // namespace lbcrypto

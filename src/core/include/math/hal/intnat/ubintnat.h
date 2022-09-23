@@ -1814,8 +1814,8 @@ public:
     OutputType ConvertToInt() const {
         if (sizeof(OutputType) < sizeof(m_value))
             OPENFHE_THROW(lbcrypto::type_error,
-                           "Invalid integer conversion: sizeof(OutputIntType) < "
-                           "sizeof(InputIntType)");
+                          "Invalid integer conversion: sizeof(OutputIntType) < "
+                          "sizeof(InputIntType)");
         return static_cast<OutputType>(m_value);
     }
 
@@ -1954,7 +1954,7 @@ public:
     load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
             OPENFHE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) +
-                                                            " is from a later version of the library");
+                                                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("v", m_value));
     }
@@ -1966,7 +1966,7 @@ public:
     load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
             OPENFHE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) +
-                                                            " is from a later version of the library");
+                                                           " is from a later version of the library");
         }
         // get an array with 2 unint64_t values for m_value
         uint64_t vec[2];
@@ -1982,7 +1982,7 @@ public:
     load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
             OPENFHE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) +
-                                                            " is from a later version of the library");
+                                                           " is from a later version of the library");
         }
         // get an array with 2 unint64_t values for m_value
         uint64_t vec[2];
@@ -2156,7 +2156,12 @@ private:
 
         wres   = wa * wb;  // should give us the lower 64 bits of 32*32
         res.hi = wres >> 32;
-        res.lo = (uint32_t)wres && 0xFFFFFFFF;
+        res.lo = (uint32_t)wres & 0xFFFFFFFF;
+#elif __riscv
+	U128BITS wres(0), wa(a), wb(b);
+	wres = wa * wb;  // should give us 128 bits  of 64 * 64 
+	res.hi = (uint64_t)(wres >> 64);
+	res.lo = (uint64_t)wres;
 #elif defined(__EMSCRIPTEN__)  // web assembly
         U64BITS a1 = a >> 32;
         U64BITS a2 = (uint32_t)a;

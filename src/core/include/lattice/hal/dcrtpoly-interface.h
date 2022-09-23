@@ -74,7 +74,7 @@ namespace lbcrypto {
  * @tparam LilVecType The underlaying RNS data structure, a vectors type structure, that will compose the CRT data
  * @tparam RNSContainer The container of LilVecType, a lbcrypto::PolyImpl or vector typically
  *
- * @example for the default DerivedType the template types would be...
+ * example for the default DerivedType the template types would be...
  *    DerivedType       - DCRTPolyImpl<BigVector>
  *    BigVecType        - BigVector
  *    LilVecType        - NativeVector
@@ -474,8 +474,8 @@ public:
     virtual DerivedType Transpose() const {
         if (m_format == COEFFICIENT) {
             OPENFHE_THROW(not_implemented_error,
-                           "DCRTPolyInterface element transposition is currently "
-                           "implemented only in the Evaluation representation.");
+                          "DCRTPolyInterface element transposition is currently "
+                          "implemented only in the Evaluation representation.");
         }
         else {
             usint m = m_params->GetCyclotomicOrder();
@@ -881,6 +881,13 @@ public:
    */
     virtual std::shared_ptr<Params> GetExtendedCRTBasis(std::shared_ptr<Params> paramsP) const = 0;
 
+    virtual void TimesQovert(
+      const std::shared_ptr<Params> paramsQ,
+      const std::vector<NativeInteger> &tInvModq,
+      const NativeInteger &t,
+      const NativeInteger &NegQModt,
+      const NativeInteger &NegQModtPrecon) = 0;
+
     /**
    * @brief Performs approximate CRT basis switching:
    * {X}_{Q} -> {X'}_{P}
@@ -1104,33 +1111,34 @@ public:
 
     /**
    * @brief Computes scale and round:
-   * {X}_{Q,P} -> {t/Q * X}_{P}
-   * {Q} = {q_1,...,q_l}
-   * {P} = {p_1,...,p_k}
+   * {X}_{I,O} -> {t/I * X}_{O}
+   * {I} = {i_1,...,i_l}
+   * {O} = {o_1,...,o_k}
+   * O, the output modulus can be either P or Q, and I is the other one.
    *
    * Brief algorithm:
-   * Let S = {Q,P}
-   * 1) [\sum_k x_k * alpha_k + Round(\sum_k beta_k * x_k)]_{p_j}
-   * 2) alpha_k = [Floor[t*P*[[SHatInv_k]_{s_k}/s_k]]_{p_j}
-   * 3) beta_k = {t*P*[[SHatInv_k]_{s_k}/s_k}
+   * Let S = {I,O}
+   * 1) [\sum_k x_k * alpha_k + Round(\sum_k beta_k * x_k)]_{o_j}
+   * 2) alpha_k = [Floor[t*O*[[SHatInv_k]_{s_k}/s_k]]_{o_j}
+   * 3) beta_k = {t*O*[[SHatInv_k]_{s_k}/s_k}
    *
    * Source: Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the
    * BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report
    * 2018/117. (https://eprint.iacr.org/2018/117)
    *
-   * @param &paramsP parameters for the CRT basis {p_1,...,p_k}
-   * @param &tPSHatInvModsDivsModp precomputed values for
-   * [\floor[t*P*[[SHatInv_k]_{s_k}/s_k]]_{p_j}
+   * @param &paramsOutput parameters for the CRT basis {o_1,...,o_k}.
+   * @param &tOSHatInvModsDivsModo precomputed values for
+   * [\floor[t*O*[[SHatInv_k]_{s_k}/s_k]]_{o_j}
    * @param &tPSHatInvModsDivsFrac precomputed values for
-   * {t*P*[[SHatInv_k]_{s_k}/s_k}
-   * @param &modpBarretMu 128-bit Barrett reduction precomputed values for
-   * p_j
-   * @return the result {t/Q * X}_{P}
+   * {t*O*[[SHatInv_k]_{s_k}/s_k}
+   * @param &modoBarretMu 128-bit Barrett reduction precomputed values for
+   * o_j
+   * @return the result {t/I * X}_{O}
    */
-    virtual DerivedType ScaleAndRound(const std::shared_ptr<Params> paramsP,
-                                      const std::vector<std::vector<NativeInteger>>& tPSHatInvModsDivsModp,
-                                      const std::vector<double>& tPSHatInvModsDivsFrac,
-                                      const std::vector<DoubleNativeInt>& modpBarretMu) const = 0;
+    virtual DerivedType ScaleAndRound(const std::shared_ptr<Params> paramsOutput,
+                                      const std::vector<std::vector<NativeInteger>>& tOSHatInvModsDivsModo,
+                                      const std::vector<double>& tOSHatInvModsDivsFrac,
+                                      const std::vector<DoubleNativeInt>& modoBarretMu) const = 0;
 
     /**
    * @brief Computes scale and round for fast rounding:
@@ -1158,6 +1166,23 @@ public:
                                     const std::vector<NativeInteger>& tgammaQHatModqPrecon,
                                     const std::vector<NativeInteger>& negInvqModtgamma,
                                     const std::vector<NativeInteger>& negInvqModtgammaPrecon) const = 0;
+
+    /**
+   * @brief Computes scale and round for BFV encryption mode EXTENDED:
+   * {X}_{Qp} -> {\round(1/p * X)}_Q
+   * {Q} = {q_1,...,q_l}
+   *
+   * Source: Andrey Kim and Yuriy Polyakov and Vincent Zucca. Revisiting Homomorphic Encryption
+   * Schemes for Finite Fields. Cryptology ePrint Archive: Report 2021/204.
+   * (https://eprint.iacr.org/2021/204.pdf)
+   *
+   * @param &paramsQ Parameters for moduli {q_1,...,q_l}
+   * @param &pInvModq p^{-1}_{q_i}
+   * @return
+   */
+    virtual void ScaleAndRoundPOverQ(
+        const std::shared_ptr<Params> paramsQ,
+        const std::vector<NativeInteger> &pInvModq) = 0;
 
     /**
    * @brief Expands basis:
@@ -1243,7 +1268,7 @@ public:
    *
    * Note in the source paper, B is referred to by M.
    *
-   * @param &moduliQ: basis Q = {q_1,...,q_l}
+   * @param &paramsQ: Params for Q
    * @param &modqBarrettMu precomputed Barrett Mu for q_i
    * @param &moduliBsk: basis {Bsk} = {bsk_1,...,bsk_k}
    * @param &modbskBarrettMu: precomputed Barrett Mu for bsk_j
@@ -1257,7 +1282,7 @@ public:
    * @param &BModqPrecon NTL precomptations for [B]_{q_i}
    */
     virtual void FastBaseConvSK(
-        const std::vector<NativeInteger>& moduliQ, const std::vector<DoubleNativeInt>& modqBarrettMu,
+        const std::shared_ptr<Params> paramsQ, const std::vector<DoubleNativeInt>& modqBarrettMu,
         const std::vector<NativeInteger>& moduliBsk, const std::vector<DoubleNativeInt>& modbskBarrettMu,
         const std::vector<NativeInteger>& BHatInvModb, const std::vector<NativeInteger>& BHatInvModbPrecon,
         const std::vector<NativeInteger>& BHatModmsk, const NativeInteger& BInvModmsk,

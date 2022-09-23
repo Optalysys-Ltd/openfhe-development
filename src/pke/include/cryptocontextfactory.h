@@ -32,10 +32,18 @@
 #ifndef SRC_PKE_CRYPTOCONTEXTFACTORY_H_
 #define SRC_PKE_CRYPTOCONTEXTFACTORY_H_
 
-// TODO (dsuponit): remove/refactor allscheme.h as it contains information on ALL schemes. we don't need this all together anymore
-#include "scheme/allscheme.h"
+#include "cryptocontext-fwd.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace lbcrypto {
+
+template <typename Element>
+class SchemeBase;
+template <typename Element>
+class CryptoParametersBase;
 
 /**
  * @brief CryptoContextFactory
@@ -44,19 +52,24 @@ namespace lbcrypto {
  */
 template <typename Element>
 class CryptoContextFactory {
-  static std::vector<CryptoContext<Element>> AllContexts;
+    static std::vector<CryptoContext<Element>> AllContexts;
 
- public:
-  static void ReleaseAllContexts();
+public:
+    static void ReleaseAllContexts();
 
-  static int GetContextCount();
+    static int GetContextCount();
 
-  static CryptoContext<Element> GetContext(
-      std::shared_ptr<CryptoParametersBase<Element>> params,
-      std::shared_ptr<SchemeBase<Element>> scheme, const std::string& schemeId = "Not");
+    static CryptoContext<Element> GetContext(std::shared_ptr<CryptoParametersBase<Element>> params,
+                                             std::shared_ptr<SchemeBase<Element>> scheme,
+                                             const std::string& schemeId = "Not");
 
-  static const std::vector<CryptoContext<Element>>& GetAllContexts();
+    // GetFullContextByDeserializedContext() is to get the full cryptocontext based on partial information
+    // we usually get from a de-serialized cryptocontext object. Using this function instead of GetContext()
+    // allows to avoid circular dependencies in some places by including cryptocontext-fwd.h
+    static CryptoContext<Element> GetFullContextByDeserializedContext(const CryptoContext<Element> context);
+
+    static const std::vector<CryptoContext<Element>>& GetAllContexts();
 };
-}
+}  // namespace lbcrypto
 
 #endif

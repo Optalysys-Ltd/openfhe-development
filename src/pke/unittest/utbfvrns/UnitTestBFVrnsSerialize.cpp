@@ -38,7 +38,7 @@
 
 using namespace lbcrypto;
 
-class UTPKESer : public ::testing::Test {
+class UTBFVRNS_SER : public ::testing::Test {
 protected:
     void SetUp() {}
 
@@ -55,13 +55,11 @@ void UnitTestContext(CryptoContext<T> cc) {
     UnitTestContextWithSertype(cc, SerType::BINARY, "binary");
 }
 
-TEST_F(UTPKESer, BFVrns_DCRTPoly_Serial) {
+TEST_F(UTBFVRNS_SER, BFVRNS_SERIAL) {
     CCParams<CryptoContextBFVRNS> parameters;
     parameters.SetPlaintextModulus(16);
     parameters.SetStandardDeviation(4);
-    parameters.SetRootHermiteFactor(1.006);
-    parameters.SetEvalMultCount(1);
-    parameters.SetScalingFactorBits(60);
+    parameters.SetScalingModSize(60);
 
     CryptoContext<DCRTPoly> cc = GenCryptoContext(parameters);
     cc->Enable(PKE);
